@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 
 import br.com.jmcmusicmattec.mattec.entities.User;
 import br.com.jmcmusicmattec.mattec.repositories.UserRepository;
+import br.com.jmcmusicmattec.mattec.services.exceptions.ResourceNotFoundException;
 
 @Service
 public class UserService {
@@ -21,7 +22,7 @@ public class UserService {
 	
 	public User findById(Long id) {
 		 Optional<User> retorno = repository.findById(id);
-		return retorno.get();
+		return retorno.orElseThrow(()-> new ResourceNotFoundException(id));
 	}
 	
 	public User insert(User obj) {
@@ -30,6 +31,18 @@ public class UserService {
 	
 	public void delete(Long id) {
 		repository.deleteById(id);
+	}
+	
+	public User update(Long id, User obj) {
+		User entity = repository.getOne(id);
+		updateData(entity, obj);
+		return repository.save(entity);
+	}
+
+	private void updateData(User entity, User obj) {
+		entity.setName(obj.getName());
+		entity.setEmail(obj.getEmail());
+		entity.setPhone(obj.getPhone());
 	}
 
 }
